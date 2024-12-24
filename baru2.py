@@ -44,8 +44,16 @@ try:
     if 'Review_Score' in data.columns:
         data['Kategori'] = data['Review_Score'].apply(classify_review_score)
 
+    # Membulatkan angka Distance dan Review_Score ke 1 angka desimal
+    if 'Distance' in data.columns:
+        data['Distance'] = data['Distance'].round(1)
+
+    if 'Review_Score' in data.columns:
+        data['Review_Score'] = data['Review_Score'].round(1)
+
     # Filter data untuk kategori 'Good' dan 'Superb'
     data = data[data['Kategori'].isin(['Good', 'Superb'])]
+    
     # Membagi layout ke dua kolom
     col1, col2 = st.columns(2)
 
@@ -53,18 +61,17 @@ try:
     with col1:
         st.subheader("10 Hotel dengan Kategori Superb")
         hotel_superb = data[data['Kategori'] == "Superb"].head(10)[['Title', 'Distance', 'Review_Score', 'Kategori']]
-        hotel_superb = hotel_superb.reset_index(drop=True)  # Reset index, drop kolom index lama
-        hotel_superb.index = hotel_superb.index + 1  # Set index mulai dari 1
-        st.table(hotel_superb)  # Ganti st.dataframe dengan st.table
+        hotel_superb = hotel_superb.reset_index(drop=True)
+        hotel_superb.index = hotel_superb.index + 1
+        st.table(hotel_superb)
 
-# Menampilkan 10 hotel dengan kategori Good di kolom kanan
+    # Menampilkan 10 hotel dengan kategori Good di kolom kanan
     with col2:
         st.subheader("10 Hotel dengan Kategori Good")
         hotel_good = data[data['Kategori'] == "Good"].head(10)[['Title', 'Distance', 'Review_Score', 'Kategori']]
-        hotel_good = hotel_good.reset_index(drop=True)  # Reset index, drop kolom index lama
-        hotel_good.index = hotel_good.index + 1  # Set index mulai dari 1
-        st.table(hotel_good)  # Ganti st.dataframe dengan st.table
-
+        hotel_good = hotel_good.reset_index(drop=True)
+        hotel_good.index = hotel_good.index + 1
+        st.table(hotel_good)
 
     # Inisialisasi DataFrame untuk data baru
     if "data_baru" not in st.session_state:
@@ -102,7 +109,6 @@ try:
 
     # Gabungkan data lama dan data baru
     data = pd.concat([data, st.session_state.data_baru], ignore_index=True)
-
 
 except FileNotFoundError:
     st.error(f"File dataset '{file_path}' tidak ditemukan. Pastikan file tersedia di path yang benar.")
