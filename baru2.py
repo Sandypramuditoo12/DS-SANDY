@@ -44,16 +44,16 @@ try:
     if 'Review_Score' in data.columns:
         data['Kategori'] = data['Review_Score'].apply(classify_review_score)
 
+    # Hapus teks "Opens in new window" dari kolom Title
+    if 'Title' in data.columns:
+        data['Title'] = data['Title'].astype(str).str.replace('Opens in new window', '', regex=False).str.strip()
+
     # Filter data untuk kategori 'Good' dan 'Superb'
     data = data[data['Kategori'].isin(['Good', 'Superb'])]
 
     # Format kolom Distance dan Review_Score ke string dengan 1 angka desimal
     data['Distance'] = data['Distance'].apply(lambda x: f"{x:.1f}")
     data['Review_Score'] = data['Review_Score'].apply(lambda x: f"{x:.1f}")
-
-    # Pastikan kolom Title tidak diinterpretasikan sebagai hyperlink
-    if 'Title' in data.columns:
-        data['Title'] = data['Title'].astype(str)  # Pastikan Title adalah teks biasa
 
     # Membagi layout ke dua kolom
     col1, col2 = st.columns(2)
