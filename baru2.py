@@ -60,7 +60,8 @@ try:
         hotel_superb = data[data['Kategori'] == "Superb"].head(10)[['Title', 'Distance', 'Review_Score', 'Kategori']]
         hotel_superb = hotel_superb.reset_index(drop=True)
         hotel_superb.index = hotel_superb.index + 1
-        st.table(hotel_superb)
+        # Atur kembali ukuran tabel agar rapi
+        st.dataframe(hotel_superb.style.set_properties(**{'text-align': 'left'}))
 
     # Menampilkan 10 hotel dengan kategori Good di kolom kanan
     with col2:
@@ -68,7 +69,8 @@ try:
         hotel_good = data[data['Kategori'] == "Good"].head(10)[['Title', 'Distance', 'Review_Score', 'Kategori']]
         hotel_good = hotel_good.reset_index(drop=True)
         hotel_good.index = hotel_good.index + 1
-        st.table(hotel_good)
+        # Atur kembali ukuran tabel agar rapi
+        st.dataframe(hotel_good.style.set_properties(**{'text-align': 'left'}))
 
     # Inisialisasi DataFrame untuk data baru
     if "data_baru" not in st.session_state:
@@ -102,7 +104,7 @@ try:
 
     # Tampilkan data baru yang telah ditambahkan
     st.write("Data Baru yang Ditambahkan:")
-    st.table(st.session_state.data_baru)
+    st.dataframe(st.session_state.data_baru.style.set_properties(**{'text-align': 'left'}))
 
     # Gabungkan data lama dan data baru
     data = pd.concat([data, st.session_state.data_baru], ignore_index=True)
