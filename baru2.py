@@ -44,16 +44,13 @@ try:
     if 'Review_Score' in data.columns:
         data['Kategori'] = data['Review_Score'].apply(classify_review_score)
 
-    # Membulatkan angka Distance dan Review_Score ke 1 angka desimal
-    if 'Distance' in data.columns:
-        data['Distance'] = data['Distance'].round(1)
-
-    if 'Review_Score' in data.columns:
-        data['Review_Score'] = data['Review_Score'].round(1)
-
     # Filter data untuk kategori 'Good' dan 'Superb'
     data = data[data['Kategori'].isin(['Good', 'Superb'])]
-    
+
+    # Format kolom Distance dan Review_Score ke string dengan 1 angka desimal
+    data['Distance'] = data['Distance'].apply(lambda x: f"{x:.1f}")
+    data['Review_Score'] = data['Review_Score'].apply(lambda x: f"{x:.1f}")
+
     # Membagi layout ke dua kolom
     col1, col2 = st.columns(2)
 
@@ -89,8 +86,8 @@ try:
 
                 new_data = pd.DataFrame({
                     "Hotel Name": [title],
-                    "Distance": [distance],
-                    "Review_Score": [review_score],
+                    "Distance": [f"{distance:.1f}"],  # Format angka ke 1 desimal
+                    "Review_Score": [f"{review_score:.1f}"],  # Format angka ke 1 desimal
                     "Kategori": [kategori]
                 })
 
@@ -105,7 +102,7 @@ try:
 
     # Tampilkan data baru yang telah ditambahkan
     st.write("Data Baru yang Ditambahkan:")
-    st.write(st.session_state.data_baru)
+    st.table(st.session_state.data_baru)
 
     # Gabungkan data lama dan data baru
     data = pd.concat([data, st.session_state.data_baru], ignore_index=True)
