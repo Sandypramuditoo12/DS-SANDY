@@ -55,15 +55,16 @@ try:
         hotel_superb = data[data['Kategori'] == "Superb"].head(10)[['Title', 'Distance', 'Review_Score', 'Kategori']]
         hotel_superb = hotel_superb.reset_index(drop=True)  # Reset index, drop kolom index lama
         hotel_superb.index = hotel_superb.index + 1  # Set index mulai dari 1
-        st.dataframe(hotel_superb)
+        st.table(hotel_superb)  # Ganti st.dataframe dengan st.table
 
-    # Menampilkan 10 hotel dengan kategori Good di kolom kanan
+# Menampilkan 10 hotel dengan kategori Good di kolom kanan
     with col2:
         st.subheader("10 Hotel dengan Kategori Good")
         hotel_good = data[data['Kategori'] == "Good"].head(10)[['Title', 'Distance', 'Review_Score', 'Kategori']]
         hotel_good = hotel_good.reset_index(drop=True)  # Reset index, drop kolom index lama
         hotel_good.index = hotel_good.index + 1  # Set index mulai dari 1
-        st.dataframe(hotel_good)
+        st.table(hotel_good)  # Ganti st.dataframe dengan st.table
+
 
     # Inisialisasi DataFrame untuk data baru
     if "data_baru" not in st.session_state:
