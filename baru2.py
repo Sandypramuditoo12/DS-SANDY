@@ -51,6 +51,10 @@ try:
     data['Distance'] = data['Distance'].apply(lambda x: f"{x:.1f}")
     data['Review_Score'] = data['Review_Score'].apply(lambda x: f"{x:.1f}")
 
+    # Pastikan kolom Title tidak diinterpretasikan sebagai hyperlink
+    if 'Title' in data.columns:
+        data['Title'] = data['Title'].astype(str)  # Pastikan Title adalah teks biasa
+
     # Membagi layout ke dua kolom
     col1, col2 = st.columns(2)
 
@@ -60,8 +64,7 @@ try:
         hotel_superb = data[data['Kategori'] == "Superb"].head(10)[['Title', 'Distance', 'Review_Score', 'Kategori']]
         hotel_superb = hotel_superb.reset_index(drop=True)
         hotel_superb.index = hotel_superb.index + 1
-        # Atur kembali ukuran tabel agar rapi
-        st.dataframe(hotel_superb.style.set_properties(**{'text-align': 'left'}))
+        st.dataframe(hotel_superb)
 
     # Menampilkan 10 hotel dengan kategori Good di kolom kanan
     with col2:
@@ -69,8 +72,7 @@ try:
         hotel_good = data[data['Kategori'] == "Good"].head(10)[['Title', 'Distance', 'Review_Score', 'Kategori']]
         hotel_good = hotel_good.reset_index(drop=True)
         hotel_good.index = hotel_good.index + 1
-        # Atur kembali ukuran tabel agar rapi
-        st.dataframe(hotel_good.style.set_properties(**{'text-align': 'left'}))
+        st.dataframe(hotel_good)
 
     # Inisialisasi DataFrame untuk data baru
     if "data_baru" not in st.session_state:
@@ -104,7 +106,7 @@ try:
 
     # Tampilkan data baru yang telah ditambahkan
     st.write("Data Baru yang Ditambahkan:")
-    st.dataframe(st.session_state.data_baru.style.set_properties(**{'text-align': 'left'}))
+    st.dataframe(st.session_state.data_baru)
 
     # Gabungkan data lama dan data baru
     data = pd.concat([data, st.session_state.data_baru], ignore_index=True)
