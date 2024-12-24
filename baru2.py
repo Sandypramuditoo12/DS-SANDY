@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import re
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
 
 # Judul aplikasi
 st.title('Prediksi Klasifikasi Popularitas Hotel')
@@ -42,18 +45,30 @@ try:
 
     # Tambahkan kolom kategori berdasarkan Review_Score
     if 'Review_Score' in data.columns:
-        data['Kategori'] = data['Review_Score'].apply(classify_review_score)
-
-    # Hapus teks "Opens in new window" dari kolom Title
-    if 'Title' in data.columns:
-        data['Title'] = data['Title'].astype(str).str.replace('Opens in new window', '', regex=False).str.strip()
+        data['Ketegori'] = data['Review_Score'].apply(classify_review_score)
 
     # Filter data untuk kategori 'Good' dan 'Superb'
-    data = data[data['Kategori'].isin(['Good', 'Superb'])]
+    data = data[data['Ketegori'].isin(['Good', 'Superb'])]
 
-    # Format kolom Distance dan Review_Score ke string dengan 1 angka desimal
-    data['Distance'] = data['Distance'].apply(lambda x: f"{x:.1f}")
-    data['Review_Score'] = data['Review_Score'].apply(lambda x: f"{x:.1f}")
+    # Membagi data menjadi fitur (X) dan target (y)
+    X = data[['Distance', 'Review_Score']]  # Fitur
+    y = data['Ketegori']  # Target
+
+    # Membagi data menjadi data pelatihan dan pengujian
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    # Inisialisasi model RandomForest
+    rf_model = RandomForestClassifier(random_state=42)
+
+    # Melatih model
+    rf_model.fit(X_train, y_train)
+
+    # Prediksi pada data pengujian
+    y_pred = rf_model.predict(X_test)
+
+    # Evaluasi model
+    accuracy = accuracy_score(y_test, y_pred)
+    st.write(f"Akurasi Model Random Forest: {accuracy * 100:.2f}%")
 
     # Membagi layout ke dua kolom
     col1, col2 = st.columns(2)
@@ -61,22 +76,22 @@ try:
     # Menampilkan 10 hotel dengan kategori Superb di kolom kiri
     with col1:
         st.subheader("10 Hotel dengan Kategori Superb")
-        hotel_superb = data[data['Kategori'] == "Superb"].head(10)[['Title', 'Distance', 'Review_Score', 'Kategori']]
-        hotel_superb = hotel_superb.reset_index(drop=True)
-        hotel_superb.index = hotel_superb.index + 1
+        hotel_superb = data[data['Ketegori'] == "Superb"].head(10)[['Title', 'Distance', 'Review_Score', 'Ketegori']]
+        hotel_superb = hotel_superb.reset_index(drop=True)  # Reset index, drop kolom index lama
+        hotel_superb.index = hotel_superb.index + 1  # Set index mulai dari 1
         st.dataframe(hotel_superb)
 
     # Menampilkan 10 hotel dengan kategori Good di kolom kanan
     with col2:
         st.subheader("10 Hotel dengan Kategori Good")
-        hotel_good = data[data['Kategori'] == "Good"].head(10)[['Title', 'Distance', 'Review_Score', 'Kategori']]
-        hotel_good = hotel_good.reset_index(drop=True)
-        hotel_good.index = hotel_good.index + 1
+        hotel_good = data[data['Ketegori'] == "Good"].head(10)[['Title', 'Distance', 'Review_Score', 'Ketegori']]
+        hotel_good = hotel_good.reset_index(drop=True)  # Reset index, drop kolom index lama
+        hotel_good.index = hotel_good.index + 1  # Set index mulai dari 1
         st.dataframe(hotel_good)
 
     # Inisialisasi DataFrame untuk data baru
     if "data_baru" not in st.session_state:
-        st.session_state.data_baru = pd.DataFrame(columns=["Hotel Name", "Distance", "Review_Score", "Kategori"])
+        st.session_state.data_baru = pd.DataFrame(columns=["Hotel Name", "Distance", "Review_Score", "Ketegori"])
 
     # Form untuk input data baru
     with st.form("input_form"):
@@ -90,9 +105,9 @@ try:
 
                 new_data = pd.DataFrame({
                     "Hotel Name": [title],
-                    "Distance": [f"{distance:.1f}"],  # Format angka ke 1 desimal
-                    "Review_Score": [f"{review_score:.1f}"],  # Format angka ke 1 desimal
-                    "Kategori": [kategori]
+                    "Distance": [distance],
+                    "Review_Score": [review_score],
+                    "Ketegori": [kategori]
                 })
 
                 st.session_state.data_baru = pd.concat([st.session_state.data_baru, new_data], ignore_index=True)
@@ -106,7 +121,7 @@ try:
 
     # Tampilkan data baru yang telah ditambahkan
     st.write("Data Baru yang Ditambahkan:")
-    st.dataframe(st.session_state.data_baru)
+    st.write(st.session_state.data_baru)
 
     # Gabungkan data lama dan data baru
     data = pd.concat([data, st.session_state.data_baru], ignore_index=True)
